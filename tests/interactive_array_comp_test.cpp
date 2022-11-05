@@ -1,0 +1,1 @@
+#include "classes/interactive_component_with_arrays.h"
