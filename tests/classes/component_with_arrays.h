@@ -1,7 +1,7 @@
 #pragma once
-#include "../../src/cli/configuration_item.h"
-#include "../../src/cli/configurable_component_t.h"
-#include "../../src/cli/impl/parser_impl.h"
+#include <configuration_item.h>
+#include <configurable_component_t.h>
+#include <impl/parser_impl.h>
 #include <gtest/gtest.h>
 #include <memory>
 

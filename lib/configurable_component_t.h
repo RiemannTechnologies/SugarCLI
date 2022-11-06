@@ -11,7 +11,7 @@
 #include <utility>
 #include <unordered_map>
 #include "configuration_item.h"
-#include "spdlog/include/spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 #include "item.h"
 
 namespace po = boost::program_options;

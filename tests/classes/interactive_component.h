@@ -1,8 +1,8 @@
 #pragma once
-#include "../../src/cli/interactive_item.h"
-#include "../../src/cli/configurable_component_t.h"
-#include "../../src/cli/impl/parser_impl.h"
-#include "../../src/utilities/strutil.hpp"
+#include <configuration_item.h>
+#include <configurable_component_t.h>
+#include <impl/parser_impl.h>
+#include "../util/strutil.hpp"
 #include <gtest/gtest.h>
 #include <memory>
 #include <iostream>
