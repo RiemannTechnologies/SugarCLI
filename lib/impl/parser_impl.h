@@ -25,9 +25,9 @@ namespace riemann {
         configurable_component_t *main;
 
         //variable maps and things
-        po::variables_map vm;
-        po::options_description od;
-        po::positional_options_description pod;
+        cxxopts::ParseResult vm;
+        cxxopts::Options od;
+        std::vector<std::string> pod;
 
 
         std::istream *m_input = &std::cin;
@@ -37,7 +37,7 @@ namespace riemann {
          * INTERNAL ONLY - creates a new parser
          * @param _cmp component tree to be parsed
          */
-        explicit parser_impl(configurable_component_t *_cmp) : main(_cmp) {}
+        explicit parser_impl(configurable_component_t *_cmp, std::string programName="My Program") : main(_cmp), od(std::move(programName)){}
 
         //parse one component
         parse_result parse_component(configurable_component_t *component);

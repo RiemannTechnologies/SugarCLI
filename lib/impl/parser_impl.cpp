@@ -3,15 +3,15 @@
 
 #define CONTAINER_CHECK_AND_APPLY(T) if(item.isContainer)\
 od.add_options() \
-        (item.name.c_str(),po::value<std::vector<T>>(),item.description.c_str()); \
+        (item.name.c_str(),item.description.c_str(),cxxopts::value<std::vector<T>>()); \
 else \
 od.add_options() \
-(item.name.c_str(),po::value<T>(),item.description.c_str())
+(item.name.c_str(),item.description.c_str(),cxxopts::value<T>());
 
 #define CONTAINER_CHECK_AND_SETVAL(T)                            if (stub.isContainer) {\
-component->set_value_for_item(name,vm.at(name).as<std::vector<T>>());\
+component->set_value_for_item(name,vm[name].as<std::vector<T>>());\
 } else {\
-component->set_value_for_item(name, vm.at(name).as<T>());\
+component->set_value_for_item(name, vm[name].as<T>());\
 }
 namespace riemann {
 
@@ -60,18 +60,20 @@ namespace riemann {
         build_od(component);
         spdlog::info("OD built");
         /* Apparently allow_unregistered() kind of breaks when it is used in conjunction with positional
-         options. As such, we will create a dummy positional option to collect everything that isn't (yet) reqcognized*/
-        po::positional_options_description _pod = pod;
-        po::options_description _od = od;
+         options. As such, we will create a dummy positional option to collect everything that isn't (yet) recognized*/
+        cxxopts::Options _od = od;
         if (!component->children.empty()) {
-            _pod.add("candice", -1);
             _od.add_options()
-                    ("candice", po::value<std::vector<std::string>>(), "");
+                    ("candice", "",cxxopts::value<std::vector<std::string>>());
+            pod.emplace_back("candice");
+
         }
 
-        po::store(po::command_line_parser(argc, argv).options(_od).positional(_pod).allow_unregistered().run(), vm);
-        po::notify(vm);
-        std::vector<std::string> errors;//here we store all the missing options so we can yell at our users
+        //Now we'll parse the arguments with the positional arguments and options we've built
+        _od.parse_positional(pod.begin(),pod.end());
+        vm = _od.parse(argc, argv);
+
+        std::vector<std::string> errors;//here we store all the missing options, so we can yell at our users
         std::vector<item *> error_items;
         for (auto const &in: component->order) {
             //keep insertion order
@@ -82,7 +84,7 @@ namespace riemann {
                 it->id == typeid(interactive_item_stub)) //it's a config item, so let's put the values in
             {
                 const auto &stub = (configuration_item_stub &) *it;
-                if (vm.contains(name)) {
+                if (vm.count(name)) {
                     switch (stub.tInfo) {
 
                         case TypeInfo::String:
@@ -101,7 +103,6 @@ namespace riemann {
                             CONTAINER_CHECK_AND_SETVAL(float)
                             break;
                         case TypeInfo::Double:
-
                             CONTAINER_CHECK_AND_SETVAL(double)
                             break;
                     }
@@ -114,7 +115,7 @@ namespace riemann {
                 }
             } else if (it->id == typeid(configuration_option)) {
                 const auto &opt = (configuration_option &) *it;
-                if (vm.contains(name)) {
+                if (vm.count(name)) {
                     opt.callback(od);
                     return parse_result::MustBreak;
                 }
@@ -148,42 +149,43 @@ namespace riemann {
             auto &comp = component->items[name];
 
             spdlog::info("building OD");
-            //O(n), not great but what can you do about it
-            for (auto &opt: od.options()) {
-                if (opt->long_name() == name) // already defined, yell about it
-                    throw std::invalid_argument(name + " is already defined. Please change the name");
-            }
 
             if (comp->id == typeid(configuration_item_stub) || comp->id == typeid(interactive_item_stub)) {
                 const auto &item = (configuration_item_stub &) *comp;
                 switch (item.tInfo) {
                     case TypeInfo::Int:
-                        CONTAINER_CHECK_AND_APPLY(int);
+                        CONTAINER_CHECK_AND_APPLY(int)
                         break;
                     case TypeInfo::String:
-                        CONTAINER_CHECK_AND_APPLY(std::string);
+                        CONTAINER_CHECK_AND_APPLY(std::string)
                         break;
                         //TODO: bool_switch for Boolean values
                     case TypeInfo::Bool:
-                        CONTAINER_CHECK_AND_APPLY(bool);
+                        CONTAINER_CHECK_AND_APPLY(bool)
                         break;
                     case TypeInfo::Char:
-                        CONTAINER_CHECK_AND_APPLY(char);
+                        CONTAINER_CHECK_AND_APPLY(char)
                         break;
                     case TypeInfo::Float:
-                        CONTAINER_CHECK_AND_APPLY(float);
+                        CONTAINER_CHECK_AND_APPLY(float)
                         break;
                     case TypeInfo::Double:
-                        CONTAINER_CHECK_AND_APPLY(double);
+                        CONTAINER_CHECK_AND_APPLY(double)
                         break;
                 }
                 if (item.posArg.isSet()) {
-                    pod.add(item.name.c_str(), item.posArg);
+                    od.add_options()
+                    (item.name, item.description, cxxopts::value<std::string>());
+                    pod.push_back(item.name);
+                    for(int i = 2; i <= item.posArg; i++) //ensure that the program can respect the maximum admitted number of positional
+                                                          //arguments that the option configured
+                                                        //TODO: find a way to handle just 1 positional argument(although I am not sure if it's really needed
+                        pod.push_back(item.name);
                 }
             }
             if (comp->id == typeid(configuration_option)) {
                 od.add_options()
-                        (comp->name.c_str(), comp->description.c_str());
+                        (comp->name, comp->description);
             }
         }
     }

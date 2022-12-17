@@ -7,3 +7,10 @@
 [submodule "include/boost-cmake"]
 	path = include/boost-cmake
 	url = https://github.com/RiemannTechnologies/boost-cmake
+[submodule "include/cxxopts"]
+	path = include/cxxopts
+	url = https://github.com/jarro2783/cxxopts.git
+	branch = c74846a
+[submodule "include/SugarInput"]
+	path = include/SugarInput
+	url = https://github.com/RiemannTechnologies/SugarInput.git

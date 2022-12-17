@@ -29,9 +29,7 @@ public:
                                            riemann::RequirementLevel::Optional,
                                            'H'),
                           help("help", "help", [this](auto context) {
-                              std::stringstream stringstream;
-                              context.print(stringstream);
-                              std::cout << stringstream.str();
+                              context.help();
                               this->is_called = true;
                           }) {
         register_item(name);

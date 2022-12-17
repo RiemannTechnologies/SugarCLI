@@ -2,12 +2,11 @@
 
 #include <iostream>
 #include "configuration_item.h"
-#include <boost/io/quoted.hpp>
 #include <sstream>
 #include <functional>
 #include <utility>
 
-namespace bio = boost::io;
+
 namespace riemann {
 
     struct interactive_item_stub : configuration_item_stub {
@@ -125,7 +124,7 @@ namespace riemann {
                     std::string token;
 
                     while (!line.eof()) {
-                        while (!(line >> bio::quoted(token))) {
+                        while (!(line >> token)) {
 
                             handle_error_and_reset_istream(line, output);
                             std::getline(input,line_str);
@@ -153,7 +152,7 @@ namespace riemann {
             }
             else {
                 if constexpr(std::is_same<std::string, T>::value) {
-                    while (!(input >> bio::quoted(value))) {
+                    while (!(input >> value)) {
 
                         handle_error_and_reset_istream(input, output);
                     }

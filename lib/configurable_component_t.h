@@ -1,8 +1,7 @@
 #pragma once
 
 #include <string>
-#include <boost/program_options.hpp>
-#include <boost/preprocessor.hpp>
+#include <cxxopts.hpp>
 #include <any>
 #include <optional>
 #include <map>
@@ -14,7 +13,7 @@
 #include <spdlog/spdlog.h>
 #include "item.h"
 
-namespace po = boost::program_options;
+namespace po = cxxopts;
 namespace riemann {
 
     struct configurable_component_t {
@@ -56,12 +55,14 @@ namespace riemann {
     //to run any code of your liking
 
     struct configuration_option : public item {
-        std::function<void(const po::options_description &context)> callback;
+        std::function<void(const cxxopts::Options &context)> callback;
 
         configuration_option(std::string name, std::string description,
-                             std::function<void(const po::options_description &context)> callback)
+                             std::function<void(const cxxopts::Options &context)> callback)
                 : item(std::move(name), std::move(description), std::type_index(typeid(configuration_option))),
                   callback(std::move(callback)) {
+
+
         };
 
     };

@@ -3,13 +3,11 @@ project(SugarCLI)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
+
 
 add_subdirectory(include/spdlog)
-add_subdirectory(include/boost-cmake)
-
+add_subdirectory(include/cxxopts)
+add_subdirectory(include/SugarInput)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -30,11 +28,11 @@ add_library(SugarCLI SHARED ${SOURCES})
 add_executable(SugarCLITest ${TEST_SOURCES})
 target_compile_definitions(SugarCLITest PRIVATE GTEST_COLOR=yes)
 
-target_link_libraries(SugarCLI PRIVATE Boost::program_options spdlog::spdlog)
+target_link_libraries(SugarCLI PRIVATE cxxopts spdlog::spdlog SugarInput)
 target_include_directories(SugarCLI PRIVATE lib)
 
 target_include_directories(SugarCLITest PRIVATE lib)
-target_link_libraries(SugarCLITest PRIVATE gtest_main spdlog::spdlog Boost::program_options SugarCLI)
+target_link_libraries(SugarCLITest PRIVATE gtest_main spdlog::spdlog cxxopts SugarCLI SugarInput)
 include(GoogleTest)
 gtest_discover_tests(SugarCLITest)
 
