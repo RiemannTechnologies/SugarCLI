@@ -174,8 +174,6 @@ namespace riemann {
                         break;
                 }
                 if (item.posArg.isSet()) {
-                    od.add_options()
-                    (item.name, item.description, cxxopts::value<std::string>());
                     pod.push_back(item.name);
                     for(int i = 2; i <= item.posArg; i++) //ensure that the program can respect the maximum admitted number of positional
                                                           //arguments that the option configured
