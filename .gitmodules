@@ -14,3 +14,6 @@
 [submodule "include/SugarInput"]
 	path = include/SugarInput
 	url = https://github.com/RiemannTechnologies/SugarInput.git
+[submodule "include/CLI11"]
+	path = include/CLI11
+	url = https://github.com/CLIUtils/CLI11.git

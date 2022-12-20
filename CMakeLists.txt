@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 
 add_subdirectory(include/spdlog)
-add_subdirectory(include/cxxopts)
+add_subdirectory(include/CLI11)
 add_subdirectory(include/SugarInput)
 
 include(FetchContent)
@@ -28,11 +28,11 @@ add_library(SugarCLI SHARED ${SOURCES})
 add_executable(SugarCLITest ${TEST_SOURCES})
 target_compile_definitions(SugarCLITest PRIVATE GTEST_COLOR=yes)
 
-target_link_libraries(SugarCLI PRIVATE cxxopts spdlog::spdlog SugarInput)
+target_link_libraries(SugarCLI PRIVATE CLI11 spdlog::spdlog SugarInput)
 target_include_directories(SugarCLI PRIVATE lib)
 
 target_include_directories(SugarCLITest PRIVATE lib)
-target_link_libraries(SugarCLITest PRIVATE gtest_main spdlog::spdlog cxxopts SugarCLI SugarInput)
+target_link_libraries(SugarCLITest PRIVATE gtest_main spdlog::spdlog CLI11 SugarCLI SugarInput)
 include(GoogleTest)
 gtest_discover_tests(SugarCLITest)
 
