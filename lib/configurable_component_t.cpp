@@ -15,6 +15,8 @@ namespace riemann {
             std::shared_ptr<configurable_component_t> configurableComponent) {
         children.try_emplace(configurableComponent->id,
                              configurableComponent);
+        configurableComponent->app = app->add_subcommand(configurableComponent->id,
+                                                         configurableComponent->help_text);
         spdlog::info("[COMPONENT API] Component " + configurableComponent->id +
                      " was registered successfully as a child of " + id);
     }

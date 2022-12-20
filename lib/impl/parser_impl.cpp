@@ -25,9 +25,11 @@ namespace riemann {
         this->argv = _argv;
         this->pname = argv[0];
         spdlog::info("Parse Started");
-        main_parse_recursive_loop(main);
+        new_build_po_recursive(main);
+        spdlog::info("OD built");
+        new_parse_component(main);
     }
-
+/*
     void parser_impl::main_parse_recursive_loop(configurable_component_t *component) {
         spdlog::info("in main recurse loop");
         if (parse_component(component) == parse_result::CanContinue && !component->children.empty()) {
@@ -45,12 +47,72 @@ namespace riemann {
                         component->children[switch_value].get());
             }
         }
-    }
-
+    }*/
     /**
      * Parse one component
      * @param component component to be parsed
      */
+
+    void parser_impl::new_build_po_recursive(configurable_component_t *component)
+    {
+        for (auto &item : component->items) {
+          const auto &_item = item.second;
+
+          const auto &stub = (configuration_item_stub &) *_item;
+
+          //tell CLI11 about the configuration option stuff
+          if(_item->id == typeid(configuration_option))
+          {
+            const auto& option = (configuration_option&)*_item;
+            component->app->add_flag(option.name,option.callback,option.description);
+            continue;
+          }
+          bool isRequired = _item->id==(typeid(configuration_item_stub))          &&
+                            stub.requirementLevel == RequirementLevel::Required;// only configuration items can have requirement levels
+          CLI::Option* opt = nullptr;
+
+          switch (stub.tInfo)
+          {
+            case TypeInfo::Bool:
+              component->app->add_flag(item.first, item.second->description);
+              continue;
+              break;
+            default:
+              if(stub.isContainer)
+              {
+                opt = component->app->add_option(item.first, item.second->description)->required(isRequired)->expected(-1);
+              }
+              else
+              {
+                opt = component->app->add_option(item.first, item.second->description)->required(isRequired);
+              }
+              break;
+          }
+          if(stub.posArg.isSet())
+          {
+              opt->expected(stub.posArg);
+          }
+        }
+        if(!component->children.empty())
+        {
+          for(auto& child : component->children)//string,unique_ptr<configurable_component_t>
+          {
+            new_build_po_recursive(child.second.get());
+          }
+        }
+    }
+    int parser_impl::new_parse_component(configurable_component_t *component){
+        spdlog::info("parsing component {}", component->id);
+        new_build_po_recursive(component);
+        CLI11_PARSE(*component->app, argc, argv);
+        for(auto& item : component->items) //string, unique_ptr<configuration_item_base>
+        {
+          auto& _item = item.second;
+            auto& stub = (configuration_item_stub&)*_item;
+        }
+        return 0;
+    }
+/*
     parse_result parser_impl::parse_component(configurable_component_t *component) {
 
 
@@ -61,7 +123,7 @@ namespace riemann {
         spdlog::info("OD built");
         /* Apparently allow_unregistered() kind of breaks when it is used in conjunction with positional
          options. As such, we will create a dummy positional option to collect everything that isn't (yet) recognized*/
-        cxxopts::Options _od = od;
+        /*cxxopts::Options _od = od;
         if (!component->children.empty()) {
             _od.add_options()
                     ("candice", "",cxxopts::value<std::vector<std::string>>());
@@ -186,5 +248,5 @@ namespace riemann {
                         (comp->name, comp->description);
             }
         }
-    }
+    }*/
 } // riemann

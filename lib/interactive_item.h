@@ -19,7 +19,6 @@ namespace riemann {
         }
 
         virtual void set_value_from_stream(std::istream &input, std::ostream &output) = 0;
-
         virtual ~interactive_item_stub() = default;
     };
 

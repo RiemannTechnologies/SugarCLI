@@ -8,6 +8,7 @@
 #include "../exception/module_not_found.h"
 #include <stdexcept>
 #include <iostream>
+#include <CLI/cli.hpp>
 
 namespace riemann {
 
@@ -25,8 +26,6 @@ namespace riemann {
         configurable_component_t *main;
 
         //variable maps and things
-        cxxopts::ParseResult vm;
-        cxxopts::Options od;
         std::vector<std::string> pod;
 
 
@@ -37,7 +36,7 @@ namespace riemann {
          * INTERNAL ONLY - creates a new parser
          * @param _cmp component tree to be parsed
          */
-        explicit parser_impl(configurable_component_t *_cmp, std::string programName="My Program") : main(_cmp), od(std::move(programName)){}
+        explicit parser_impl(configurable_component_t *_cmp) : main(_cmp){}
 
         //parse one component
         parse_result parse_component(configurable_component_t *component);
@@ -47,6 +46,8 @@ namespace riemann {
         void build_od(configurable_component_t *component);
 
         void main_parse_recursive_loop(configurable_component_t *component);
+        void new_build_po_recursive(configurable_component_t *component);
+      int new_parse_component(configurable_component_t *component);
     };
 
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <cxxopts.hpp>
+#include <CLI/CLI.hpp>
 #include <any>
 #include <optional>
 #include <map>
@@ -13,7 +13,6 @@
 #include <spdlog/spdlog.h>
 #include "item.h"
 
-namespace po = cxxopts;
 namespace riemann {
 
     struct configurable_component_t {
@@ -26,7 +25,7 @@ namespace riemann {
         std::vector<std::string> order;
         std::unordered_map<std::string, item *> items;
         std::string child_component_switch;//what should determine which component is called
-
+        CLI::App * app;
         void register_item(item &_item);
 
         /**
@@ -55,10 +54,10 @@ namespace riemann {
     //to run any code of your liking
 
     struct configuration_option : public item {
-        std::function<void(const cxxopts::Options &context)> callback;
+        std::function<void(const std::size_t context)> callback;
 
         configuration_option(std::string name, std::string description,
-                             std::function<void(const cxxopts::Options &context)> callback)
+                             std::function<void(const std::size_t context)> callback)
                 : item(std::move(name), std::move(description), std::type_index(typeid(configuration_option))),
                   callback(std::move(callback)) {
 
