@@ -8,6 +8,8 @@
 #include "detect_container.h"
 #include <any>
 #include <spdlog/spdlog.h>
+#include <IOStreamReader.h>
+#include <CLI/CLI.hpp>
 
 namespace riemann {
     enum class TypeInfo {
@@ -45,7 +47,7 @@ namespace riemann {
         ) : item(name, description, std::type_index(typeid(configuration_item_stub))), posArg(posArg),
             requirementLevel(level) {}
 
-        virtual void set_value(std::any val) = 0;
+        virtual void set_value(CLI::Option *opt) = 0;
 
     };
 
@@ -83,8 +85,8 @@ namespace riemann {
         };
 
 
-        void set_value(std::any val) override {
-            this->value = std::any_cast<T>(val);
+        void set_value(CLI::Option *opt) override {
+            this->value = opt->as<T>();
         }
 
         virtual T get_value() const {

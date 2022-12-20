@@ -29,7 +29,6 @@ public:
                                            riemann::RequirementLevel::Optional,
                                            'H'),
                           help("help", "help", [this](auto context) {
-                              context.help();
                               this->is_called = true;
                           }) {
         register_item(name);

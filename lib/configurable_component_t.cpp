@@ -21,10 +21,7 @@ namespace riemann {
                      " was registered successfully as a child of " + id);
     }
 
-    void configurable_component_t::set_value_for_item(const std::string &it, const std::any &value) {
-        auto _itm = static_cast<configuration_item_stub *>(this->items[it]);
-        _itm->set_value(value);
-    }
+
 
     void configurable_component_t::run() {
         const auto switch_value = static_cast<configuration_item<std::string> *>(items[child_component_switch])->get_value();

@@ -38,8 +38,6 @@ namespace riemann {
 
         };
 
-        void set_value_for_item(const std::string &it, const std::any &value);
-
         void register_child_component(std::shared_ptr<configurable_component_t> configurableComponent);
 
         virtual void run();

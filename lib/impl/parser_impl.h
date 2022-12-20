@@ -4,8 +4,6 @@
 #include "../configurable_component_t.h"
 #include "../configuration_item.h"
 #include "../interactive_item.h"
-#include "../exception/cli_argument_not_found.h"
-#include "../exception/module_not_found.h"
 #include <stdexcept>
 #include <iostream>
 #include <CLI/cli.hpp>

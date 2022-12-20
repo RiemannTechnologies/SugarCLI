@@ -108,7 +108,29 @@ namespace riemann {
         for(auto& item : component->items) //string, unique_ptr<configuration_item_base>
         {
           auto& _item = item.second;
-            auto& stub = (configuration_item_stub&)*_item;
+          if(_item->id == typeid(configuration_option)) //skip configuration options because they do not require a value
+            continue;
+          if(_item->id == typeid(interactive_item_stub))
+          {
+              auto& stub = (interactive_item_stub&)*_item;
+              bool isRequired = _item->id==(typeid(configuration_item_stub))          &&
+                stub.requirementLevel == RequirementLevel::Required;
+
+              if(!isRequired && component->app->count(item.first) == 0)
+                continue;
+              if(isRequired && component->app->count(item.first) == 0)
+              {
+                stub.new_set_value_from_stream(std::cin, std::cout);
+              }
+              stub.set_value(component->app->get_option(stub.name));
+
+          }
+          else
+          {
+              auto& stub = (configuration_item_stub&)*_item;
+              stub.set_value(component->app->get_option(stub.name));
+          }
+
         }
         return 0;
     }
@@ -221,7 +243,7 @@ namespace riemann {
                     case TypeInfo::String:
                         CONTAINER_CHECK_AND_APPLY(std::string)
                         break;
-                        //TODO: bool_switch for Boolean values
+
                     case TypeInfo::Bool:
                         CONTAINER_CHECK_AND_APPLY(bool)
                         break;
@@ -239,7 +261,7 @@ namespace riemann {
                     pod.push_back(item.name);
                     for(int i = 2; i <= item.posArg; i++) //ensure that the program can respect the maximum admitted number of positional
                                                           //arguments that the option configured
-                                                        //TODO: find a way to handle just 1 positional argument(although I am not sure if it's really needed
+
                         pod.push_back(item.name);
                 }
             }

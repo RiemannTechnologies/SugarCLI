@@ -5,7 +5,8 @@
 #include <sstream>
 #include <functional>
 #include <utility>
-
+#include <IOStreamReader.h>
+#include <IOException.h>
 
 namespace riemann {
 
@@ -18,7 +19,8 @@ namespace riemann {
                 asking_text(std::move(_asking_text)) {
         }
 
-        virtual void set_value_from_stream(std::istream &input, std::ostream &output) = 0;
+        //virtual void set_value_from_stream(std::istream *input, std::ostream *output) = 0;
+        virtual void new_set_value_from_stream(std::istream &input, std::ostream &output) = 0;
         virtual ~interactive_item_stub() = default;
     };
 
@@ -52,8 +54,8 @@ namespace riemann {
             this->id = std::type_index(typeid(interactive_item_stub));
         };
 
-        void set_value(std::any val) override {
-            this->value = std::any_cast<T>(val);
+        void set_value(CLI::Option *opt) override {
+            this->value = opt->as<T>();
         }
 
         virtual T get_value() const {
@@ -63,7 +65,7 @@ namespace riemann {
         ~interactive_item() override = default;
 
 
-        std::string int_to_str(int x)
+        /*std::string int_to_str(int x)
         {
             std::string out;
             char tmpstr[1];
@@ -87,8 +89,8 @@ namespace riemann {
             }
             return out;
 
-        }
-        void handle_error_and_reset_istream(std::istream& input, std::ostream& output)
+        }*/
+        /*void handle_error_and_reset_istream(std::istream& input, std::ostream& output)
         {
             output << "\n";
             output << "Invalid data\n" << this->asking_text << ": ";
@@ -101,9 +103,57 @@ namespace riemann {
             spdlog::info("Skipping " + std::to_string(std::numeric_limits<std::streamsize>::max()) + " positions");
             input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             spdlog::info("Current IOStream character: " + int_to_str(input.peek()));
-        }
+        }*/
 
-        void set_value_from_stream(std::istream &input, std::ostream &output) final override {
+        void new_set_value_from_stream(std::istream &input, std::ostream &output) override{
+          if (pre_stream_read_hook != nullptr)
+            pre_stream_read_hook();
+
+          if (this->isContainer) {
+            bool OK = true;
+            do {
+              try {
+                std::string s;
+                std::getline(input, s, '\n');
+                std::istringstream iss(s);
+                sugar::m_IOStreamReader reader(input);
+                std::remove_cvref_t<T> tmp;
+                while (!iss.eof()) {
+                  auto x = reader.m_TryRead(tmp);
+                  if (x) {
+                    reader.discard_line();
+                    throw sugar::IOException(x);
+                  }
+                  this->value.emplace_back(tmp);
+                }
+              }
+              catch (std::exception &e) {
+                std::cout << "Invalid data\n";
+                OK = false;
+              }
+            } while (!OK);
+          } else {
+            bool OK = true;
+            do {
+              try {
+                sugar::m_IOStreamReader reader(input);
+                auto x = reader.m_TryRead(this->value);
+                if (x) {
+                  reader.discard_line();
+                  throw sugar::IOException(x);
+                }
+              }
+              catch (std::exception &e) {
+                std::cout << "Invalid data\n";
+                OK = false;
+              }
+            }
+            while (!OK);
+          }
+          if (post_stream_read_hook != nullptr)
+            post_stream_read_hook();
+        }
+       /*void set_value_from_stream(std::istream *input, std::ostream *output) override {
             if(pre_stream_read_hook != nullptr)
             {
                 pre_stream_read_hook();
@@ -115,7 +165,8 @@ namespace riemann {
                 //read each line and split it into tokens, then test each one for errors and add them to the value array
                 std::istringstream line;
                 std::string line_str;
-                std::getline(input, line_str);
+               //getline into line_str
+                std::getline(*input, line_str, '\n');
                 line.str(line_str);
                 //detect "" if it's a string
                 if constexpr(std::is_same<typename T::value_type, std::string>::value) {
@@ -169,9 +220,9 @@ namespace riemann {
             {
                 post_stream_read_hook();
             }
-        };
+        }*/
 
 
     };
 
-}
+};

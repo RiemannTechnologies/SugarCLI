@@ -28,11 +28,12 @@ add_library(SugarCLI SHARED ${SOURCES})
 add_executable(SugarCLITest ${TEST_SOURCES})
 target_compile_definitions(SugarCLITest PRIVATE GTEST_COLOR=yes)
 
-target_link_libraries(SugarCLI PRIVATE CLI11 spdlog::spdlog SugarInput CLI11::CLI11)
-target_include_directories(SugarCLI PRIVATE lib)
+target_link_libraries(SugarCLI PRIVATE CLI11 spdlog::spdlog SugarInput CLI11::CLI11 SugarInput)
+target_include_directories(SugarCLI PRIVATE lib include/SugarInput/lib)
+
 
 target_include_directories(SugarCLITest PRIVATE lib)
-
+target_include_directories(SugarCLITest PRIVATE include/SugarInput/lib) #this is the worst thing I've ever done
 target_link_libraries(SugarCLITest PRIVATE gtest_main spdlog::spdlog CLI11::CLI11 SugarCLI SugarInput)
 include(GoogleTest)
 gtest_discover_tests(SugarCLITest)
