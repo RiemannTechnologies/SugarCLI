@@ -4,7 +4,7 @@
 #include "configurable_component_t.h"
 #include "impl/parser_impl.h"
 
-namespace riemann {
+namespace Sugar::CLI {
     class parser {
 
         parser_impl m_parser;

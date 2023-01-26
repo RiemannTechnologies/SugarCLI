@@ -1,6 +1,6 @@
 #include "configurable_component_t.h"
 
-namespace riemann {
+namespace Sugar::CLI {
 
 
 
@@ -15,6 +15,7 @@ namespace riemann {
             std::shared_ptr<configurable_component_t> configurableComponent) {
         children.try_emplace(configurableComponent->id,
                              configurableComponent);
+        delete configurableComponent->app;
         configurableComponent->app = app->add_subcommand(configurableComponent->id,
                                                          configurableComponent->help_text);
         spdlog::info("[COMPONENT API] Component " + configurableComponent->id +

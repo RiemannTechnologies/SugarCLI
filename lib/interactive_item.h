@@ -8,24 +8,11 @@
 #include <IOStreamReader.h>
 #include <IOException.h>
 
-namespace riemann {
+namespace Sugar::CLI {
 
-    struct interactive_item_stub : configuration_item_stub {
-        std::string asking_text;
-
-        explicit interactive_item_stub(const std::string &_name, const std::string &_description, RequirementLevel _lvl,
-                                       std::optional<int> _pa, std::string _asking_text) :
-                configuration_item_stub(_name, _description, _lvl, _pa),
-                asking_text(std::move(_asking_text)) {
-        }
-
-        //virtual void set_value_from_stream(std::istream *input, std::ostream *output) = 0;
-        virtual void new_set_value_from_stream(std::istream &input, std::ostream &output) = 0;
-        virtual ~interactive_item_stub() = default;
-    };
 
     template<typename T>
-    struct interactive_item : public interactive_item_stub {
+    struct interactive_item : public item {
     protected:
         T value;
         std::function<void()> pre_stream_read_hook;
@@ -40,14 +27,13 @@ namespace riemann {
         explicit interactive_item(const std::string &_name, const std::string &_description,
                                   const std::string &_asking_text, std::optional<int> _posArg = std::nullopt,
                                   std::optional<T> _default = std::nullopt)
-                : interactive_item_stub(_name, _description,
+                : item(_name, _description,
                                         RequirementLevel::Required, _posArg, _asking_text) {
             if constexpr(is_container<T>::value && !std::is_same<std::string, T>::value) {
                 tInfo = mapping[std::type_index(typeid(typename T::value_type))];
                 isContainer = true;
             } else
                 tInfo = mapping[std::type_index(typeid(T))];
-
             if (_default != std::nullopt)
                 value = _default.value();
 
@@ -63,53 +49,16 @@ namespace riemann {
         }
 
         ~interactive_item() override = default;
+      void set_option(std::string_view opt) override {
+          opt->add_option(this->name, this->value, this->description);
+      }
 
-
-        /*std::string int_to_str(int x)
-        {
-            std::string out;
-            char tmpstr[1];
-            switch(x)
-            {
-                case '\n':
-                    out = "\n";
-                    break;
-                case ' ':
-                    out = "<space>";
-                    break;
-                case EOF:
-                    out = "EOF";
-                    break;
-                case 0:
-                    out = "NULL";
-                    break;
-                default:
-                    tmpstr[0] = (char)x;
-                    out = tmpstr;
-            }
-            return out;
-
-        }*/
-        /*void handle_error_and_reset_istream(std::istream& input, std::ostream& output)
-        {
-            output << "\n";
-            output << "Invalid data\n" << this->asking_text << ": ";
-            std::string bad = input.fail() ? "true" : "false";
-            spdlog::info("Bad() flag is: " + bad);
-            input.clear();
-            bad = input.fail() ? "true" : "false";
-            spdlog::info("Bad() flag is: " + bad);
-
-            spdlog::info("Skipping " + std::to_string(std::numeric_limits<std::streamsize>::max()) + " positions");
-            input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            spdlog::info("Current IOStream character: " + int_to_str(input.peek()));
-        }*/
 
         void new_set_value_from_stream(std::istream &input, std::ostream &output) override{
           if (pre_stream_read_hook != nullptr)
             pre_stream_read_hook();
 
-          if (this->isContainer) {
+          if constexpr (is_container<T>::value && !std::is_same<std::string, T>::value) {
             bool OK = true;
             do {
               try {
@@ -153,74 +102,6 @@ namespace riemann {
           if (post_stream_read_hook != nullptr)
             post_stream_read_hook();
         }
-       /*void set_value_from_stream(std::istream *input, std::ostream *output) override {
-            if(pre_stream_read_hook != nullptr)
-            {
-                pre_stream_read_hook();
-            }
-            spdlog::info("Reading " + name);
-            output << this->asking_text << ": ";
-
-            if constexpr(is_container<T>::value && !std::is_same<std::string, T>::value) {
-                //read each line and split it into tokens, then test each one for errors and add them to the value array
-                std::istringstream line;
-                std::string line_str;
-               //getline into line_str
-                std::getline(*input, line_str, '\n');
-                line.str(line_str);
-                //detect "" if it's a string
-                if constexpr(std::is_same<typename T::value_type, std::string>::value) {
-
-                    std::string token;
-
-                    while (!line.eof()) {
-                        while (!(line >> token)) {
-
-                            handle_error_and_reset_istream(line, output);
-                            std::getline(input,line_str);
-                            line.str(line_str);
-                        }
-                        spdlog::info("Parsed " + token);
-                        //all good, push back
-                        value.push_back(token);
-                    }
-                } else {
-                    typename T::value_type token; //create a possible entry of the type of the container objects
-                    while (!line.eof()) {
-                        while (!(line >> token)) {
-
-                            handle_error_and_reset_istream(line, output);
-                            std::getline(input,line_str);
-                            line.str(line_str);
-                        }
-                        spdlog::info("Parsed " + token);
-                        //all good, push back
-                        value.push_back(token);
-                    }
-                }
-
-            }
-            else {
-                if constexpr(std::is_same<std::string, T>::value) {
-                    while (!(input >> value)) {
-
-                        handle_error_and_reset_istream(input, output);
-                    }
-                    spdlog::info("Parsed " + value);
-                } else {
-
-                    while (!(input >> value)) {
-
-                        handle_error_and_reset_istream(input, output);
-                    }
-                    spdlog::info("Parsed " + std::to_string(value));
-                }
-            }
-            if(post_stream_read_hook != nullptr)
-            {
-                post_stream_read_hook();
-            }
-        }*/
 
 
     };

@@ -13,7 +13,7 @@
 #include <spdlog/spdlog.h>
 #include "item.h"
 
-namespace riemann {
+namespace Sugar::CLI {
 
     struct configurable_component_t {
 
@@ -24,18 +24,11 @@ namespace riemann {
 
         std::vector<std::string> order;
         std::unordered_map<std::string, item *> items;
-        std::string child_component_switch;//what should determine which component is called
-        CLI::App * app;
+        item* child_component_switch = nullptr;//what should determine which component is called
         void register_item(item &_item);
 
-        /**
-         * Initialize a component
-         * @param _id the string it should activate to when using the parser
-         * @param _help_text what should appear for the user in the help section
-         */
         explicit configurable_component_t(std::string _id, std::string _help_text = "")
                 : id(std::move(_id)), help_text(std::move(_help_text)) {
-
         };
 
         void register_child_component(std::shared_ptr<configurable_component_t> configurableComponent);
@@ -44,26 +37,4 @@ namespace riemann {
 
     };
 
-
-
-    //sometimes, you want to run an action when you see a parameter, but you do not want to store
-    //its value because it does not have one. As such, you can initialize an "option" that contains
-    //the same parameters as a normal config item, but now it has a function callback you can use
-    //to run any code of your liking
-
-    struct configuration_option : public item {
-        std::function<void(const std::size_t context)> callback;
-
-        configuration_option(std::string name, std::string description,
-                             std::function<void(const std::size_t context)> callback)
-                : item(std::move(name), std::move(description), std::type_index(typeid(configuration_option))),
-                  callback(std::move(callback)) {
-
-
-        };
-
-    };
-
-
 }
-//

@@ -11,50 +11,14 @@
 #include <IOStreamReader.h>
 #include <CLI/CLI.hpp>
 
-namespace riemann {
-    enum class TypeInfo {
-        String,
-        Int,
-        Bool,
-        Char,
-        Float,
-        Double,
-    };
-    enum class RequirementLevel {
-        Required,
-        Optional,
-        NotApplicable
-    };
-
-    static std::unordered_map<std::type_index, TypeInfo> mapping{
-            {std::type_index(typeid(int)),         TypeInfo::Int},
-            {std::type_index(typeid(std::string)), TypeInfo::String},
-            {std::type_index(typeid(bool)),        TypeInfo::Bool},
-            {std::type_index(typeid(char)),        TypeInfo::Char},
-            {std::type_index(typeid(float)),       TypeInfo::Float},
-            {std::type_index(typeid(double)),      TypeInfo::Double}
-    };
-
-//here go all the stuff that do NOT require the knowlegde of the exact information
-    struct configuration_item_stub : public item {
-        positionalArgumentDescription posArg;
-        TypeInfo tInfo;
-        bool isContainer = false;
-        RequirementLevel requirementLevel = RequirementLevel::NotApplicable;
-
-        configuration_item_stub(const std::string &name, const std::string &description, RequirementLevel level,
-                                const std::optional<int> &posArg
-        ) : item(name, description, std::type_index(typeid(configuration_item_stub))), posArg(posArg),
-            requirementLevel(level) {}
-
-        virtual void set_value(CLI::Option *opt) = 0;
-
-    };
+namespace Sugar::CLI {
 
     template<typename T>
-    class configuration_item : public configuration_item_stub {
+    class configuration_item : public item {
     protected:
         T value;
+        positionalArgumentDescription pad;
+        RequirementLevel level;
     public:
         /**
          * Create a new configuration item
@@ -63,33 +27,76 @@ namespace riemann {
          * @param _default Default value if any
          */
         explicit configuration_item(std::string _name, std::string _description,
-                                    std::optional<int> _posArg, RequirementLevel _level,
+                                    std::optional<int> _posArg, RequirementLevel _level = RequirementLevel::Optional,
                                     std::optional<T> _default = std::nullopt)
 
-                : configuration_item_stub(_name, _description, _level, _posArg) {
-            if (_level == RequirementLevel::Optional &&
-                _posArg.has_value()) // positional operators are ALWAYS required for po
+                : item(_name, _description), level(_level) {
+            if (_level == RequirementLevel::Optional && _posArg.has_value()) // positional operators are ALWAYS required for po
                 spdlog::warn(
-                        name +
+                        _name +
                         " was set as optional. RequirementLevel::Optional has NO effect on positional options\n" +
-                        "This could have undefined behavior. If you are an user of RBS, please report this issue");
-            if constexpr(is_container<T>::value && !std::is_same<std::string, T>::value) {
-                tInfo = mapping[std::type_index(typeid(typename T::value_type))];
-                isContainer = true;
-            } else
-                tInfo = mapping[std::type_index(typeid(T))];
-
-
+                        "This could have undefined behavior.");
             if (_default != std::nullopt)
-                value = _default.value();
+            {
+              value = _default.value();
+            }
+          if constexpr (is_container<T>::value && !std::is_same<std::string, T>::value)
+          {
+            if(_posArg.value() == 1)
+              throw std::runtime_error(name + " is a collection, but it only accepts 1 parameter");
+          }
+          else
+          {
+            if(_posArg.value() != -1)
+              throw std::runtime_error(name + " is not a collection, but it is configured to accept more than 1 parameter");
+          }
         };
 
+      void handle_opt(const ArgumentDatabase &args) override {
+        if(pad.isSet())
+        {
+          bool got_input = false;
+          if(pad.value() == -1) {
+            for (auto i = args.current_positional_position; i < args.positional_arguments.size(); ++i) {
+              got_input = true;
+              value.emplace_back(args.positional_arguments[i]);
+            }
+          }
+          else {
+            for (auto i = args.current_positional_position; i < args.positional_arguments.size() && i < i + pad.value();
+                 ++i) {
+              got_input = true;
+              if constexpr (is_container<T>::value && !std::is_same<std::string, T>::value) {
+                value.emplace_back(args.positional_arguments[i]);
+              } else {
+                value = args.positional_arguments[i];
+              }
+            }
+          }
+          if(!got_input && level == RequirementLevel::Required)
+            throw std::runtime_error(name + " is required but was not set"); //TODO: Make this print help messages
 
-        void set_value(CLI::Option *opt) override {
-            this->value = opt->as<T>();
+          return;
         }
 
-        virtual T get_value() const {
+        if constexpr (is_container<T>::value && !std::is_same<std::string, T>::value)
+        {
+          value
+        }
+
+      }
+      [[nodiscard]] std::string as_string() const override {
+        if constexpr (is_container<T>::value && !std::is_same<std::string, T>::value) {
+          std::stringstream ss;
+          for (const auto &v : value) {
+            ss << v << " ";
+          }
+          return ss.str();
+        } else {
+          return std::to_string(value);
+        }
+      }
+      virtual T get_value() const {
             return value;
         }
 

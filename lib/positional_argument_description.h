@@ -23,7 +23,7 @@ public:
         return *this;
     }
 
-    operator int() const {
+    int value() const {
         return pargs;
     }
 

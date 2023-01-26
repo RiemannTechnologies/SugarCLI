@@ -1,6 +1,6 @@
 #include "strutil.hpp"
 
-namespace riemann {
+namespace Sugar::CLI {
     std::vector<std::string> split(const std::string &input, char delim) {
         std::size_t current, previous = 0;
         std::vector<std::string> output;

@@ -5,11 +5,11 @@
 #include <gtest/gtest.h>
 #include <memory>
 
-
-class component_with_arrays : public riemann::configurable_component_t {
+using namespace Sugar::CLI;
+class component_with_arrays : public configurable_component_t {
 public:
-    riemann::configuration_item<std::vector<std::string>> names;
-    riemann::configuration_item<int> age;
+    configuration_item<std::vector<std::string>> names;
+    configuration_item<int> age;
     riemann::configuration_item<double> height;
     component_with_arrays() : configurable_component_t("test", "This is a test"),
                        names("name", "Names of users", std::nullopt, riemann::RequirementLevel::Required),
