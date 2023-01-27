@@ -15,58 +15,53 @@ component->set_value_for_item(name, vm[name].as<T>());\
 }
 namespace Sugar::CLI {
 
-    /**
-     * Initiate a parse of the argv
-     * @param argc
-     * @param argv
-     */
-    void parser_impl::start_parse(int _argc, const char **_argv) {
+/**
+ * Initiate a parse of the argv
+ * @param argc
+ * @param argv
+ */
+void parser_impl::start_parse(int _argc, const char** _argv)
+{
 
-        pname = _argv[0];
-        for(int i = 0; i < _argc; i++){
-            raw_arguments.emplace_back(_argv[i]);
-        }
+	pname = _argv[0];
+	for (int i = 0; i<_argc; i++) {
+		raw_arguments.emplace_back(_argv[i]);
+	}
 
-        std::string current_arg;
-        for(auto i = 1; i<raw_arguments.size(); i++){
-            const auto& argument = raw_arguments[i];
-            if(argument.starts_with("-"))
-            {
-              database.named_arguments.try_emplace(argument, std::vector<std::string>());
-              current_arg = argument;
-            }
-            else if (!current_arg.empty())
-            {
-              database.named_arguments[current_arg].emplace_back(argument);
-              current_arg = "";
-            }
-            else
-            {
-              database.positional_arguments.emplace_back(argument);
-            }
-        }
+	std::string current_arg;
+	for (auto i = 1; i<raw_arguments.size(); i++) {
+		const auto& argument = raw_arguments[i];
+		if (argument.starts_with("-")) {
+			database.named_arguments.try_emplace(argument /* emplacing a default constructed object */);
+			current_arg = argument;
+		}
+		else if (!current_arg.empty()) {
+			database.named_arguments[current_arg].emplace_back(argument);
+			current_arg = "";
+		}
+		else {
+			database.positional_arguments.emplace_back(argument);
+		}
+	}
 
-        spdlog::info("Parse Started");
-        obtain_argument_data_recursive(main);
-        spdlog::info("Parse Finished");
-    }
+	obtain_argument_data_recursive(main);
+}
 
-    void parser_impl::obtain_argument_data_recursive(configurable_component_t *component)
-    {
-        spdlog::info("Parsing component " + component->id);
-        for(const auto& kItem : component->items) {
-          spdlog::info("Item " + kItem.first + "is being parsed");
-          kItem.second->handle_opt(database);
-        }
-        if(component->children.empty() && component->child_component_switch != nullptr)
-          spdlog::warn("The child component switch was set for id \"{}\", but no children were found. The switch will have no effect", component->id);
-        if(!component->children.empty() && component ->child_component_switch == nullptr)
-            throw std::runtime_error("Component {} has children but no child component switch"+ component->id);
-        if(component->children.empty())
-          return;
+void parser_impl::obtain_argument_data_recursive(configurable_component_t* component)
+{
 
-        const auto switch_value = component ->child_component_switch->as_string();
-        spdlog::info("Switch value has been found as " + switch_value);
-        obtain_argument_data_recursive(component->children[switch_value].get());
-    }
+	for (const auto& kItem : component->items) {
+
+		kItem.second->handle_opt(database);
+	}
+	if (component->children.empty() && component->child_component_switch!=nullptr)
+
+		if (!component->children.empty() && component->child_component_switch==nullptr)
+			throw std::runtime_error("Component {} has children but no child component switch"+component->id);
+	if (component->children.empty())
+		return;
+
+	const auto switch_value = component->child_component_switch->as_string();
+	obtain_argument_data_recursive(component->children[switch_value].get());
+}
 } // riemann

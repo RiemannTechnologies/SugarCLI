@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <CLI/CLI.hpp>
 #include <any>
 #include <optional>
 #include <map>
@@ -10,31 +9,31 @@
 #include <utility>
 #include <unordered_map>
 #include "configuration_item.h"
-#include <spdlog/spdlog.h>
 #include "item.h"
 
 namespace Sugar::CLI {
 
-    struct configurable_component_t {
+struct configurable_component_t {
 
-        std::unordered_map<std::string, std::shared_ptr<configurable_component_t>> children;
+  std::unordered_map<std::string, std::shared_ptr<configurable_component_t>> children;
 
-        std::string id;//the string it should activate to when using the parser
-        std::string help_text;//what should appear for the user in the help section
+  std::string id;//the string it should activate to when using the parser
+  std::string help_text;//what should appear for the user in the help section
 
-        std::vector<std::string> order;
-        std::unordered_map<std::string, item *> items;
-        item* child_component_switch = nullptr;//what should determine which component is called
-        void register_item(item &_item);
+  std::vector<std::string> order;
+  std::unordered_map<std::string, item*> items;
+  item* child_component_switch = nullptr;//what should determine which component is called
+  void register_item(item& _item);
 
-        explicit configurable_component_t(std::string _id, std::string _help_text = "")
-                : id(std::move(_id)), help_text(std::move(_help_text)) {
-        };
+  explicit configurable_component_t(std::string _id, std::string _help_text = "")
+		  :id(std::move(_id)), help_text(std::move(_help_text))
+  {
+  };
 
-        void register_child_component(std::shared_ptr<configurable_component_t> configurableComponent);
+  void register_child_component(std::shared_ptr<configurable_component_t> configurableComponent);
 
-        virtual void run();
+  virtual void run();
 
-    };
+};
 
 }

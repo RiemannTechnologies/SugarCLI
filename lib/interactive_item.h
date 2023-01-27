@@ -1,109 +1,64 @@
 #pragma once
 
 #include <iostream>
-#include "configuration_item.h"
-#include <sstream>
-#include <functional>
-#include <utility>
-#include <IOStreamReader.h>
-#include <IOException.h>
 
+#include "configuration_item.h"
+#include "util/strutil.hpp"
+#include <SugarInput/lib/IOException.h>
+#include <SugarInput/lib/Reader.h>
+#include <SugarInput/lib/IOStreamable.h>
+#include <SugarInput/lib/Parser.h>
 namespace Sugar::CLI {
 
+template<Input::IOStreamable T>
+struct interactive_item : public configuration_item<T> {
 
-    template<typename T>
-    struct interactive_item : public item {
-    protected:
-        T value;
-        std::function<void()> pre_stream_read_hook;
-        std::function<void()> post_stream_read_hook;
-    public:
-        /**
-         * Create a new interactive item
-         * @param _name Name of the item (ex. "help" will respond to --help)
-         * @param _posArg Should it respond when there is no --option specified? And how many fields does can it respond to? (use -1 for all)
-         * @param _default Default value if any
-         */
-        explicit interactive_item(const std::string &_name, const std::string &_description,
-                                  const std::string &_asking_text, std::optional<int> _posArg = std::nullopt,
-                                  std::optional<T> _default = std::nullopt)
-                : item(_name, _description,
-                                        RequirementLevel::Required, _posArg, _asking_text) {
-            if constexpr(is_container<T>::value && !std::is_same<std::string, T>::value) {
-                tInfo = mapping[std::type_index(typeid(typename T::value_type))];
-                isContainer = true;
-            } else
-                tInfo = mapping[std::type_index(typeid(T))];
-            if (_default != std::nullopt)
-                value = _default.value();
+private:
+	std::istream* m_input = &std::cin;
+	std::ostream* m_output = &std::cout;
+	bool has_optional_value = false;
+	std::string user_message;
+public:
+	explicit interactive_item(std::string const& _name,
+			std::string const& _user_message,
+			RequirementLevel _level = RequirementLevel::Required,
+			std::string const& _description = "",
+			std::optional<int> _posArg = std::nullopt,
+			std::optional<T> _default = std::nullopt)
+			:configuration_item<T>(_name,
+			_level,
+			_description,
+			_posArg,
+			_default),
+			 user_message(trim(_user_message))
+	{
+		if (_default!=std::nullopt) {
+			has_optional_value = true;
+		}
+	}
+	void handle_missing_argument() override
+	{
+		bool ok = false;
+		do {
+			*m_output << user_message << ": ";
 
-            this->id = std::type_index(typeid(interactive_item_stub));
-        };
+			try {
+				Input::raw_input input;
+				input = Input::Reader::Read(m_input);
+				if (input.empty() && !this->has_optional_value) {
+					*m_output << '\n';
+					continue;
+				}
+				Input::Parser::Parse(this->value, input);
+				ok = true;
+			}
+			catch (std::invalid_argument&) {
+				*m_output << "Invalid input, please try again" << std::endl;
+			}
+		}
+		while (!ok);
+	}
 
-        void set_value(CLI::Option *opt) override {
-            this->value = opt->as<T>();
-        }
-
-        virtual T get_value() const {
-            return value;
-        }
-
-        ~interactive_item() override = default;
-      void set_option(std::string_view opt) override {
-          opt->add_option(this->name, this->value, this->description);
-      }
-
-
-        void new_set_value_from_stream(std::istream &input, std::ostream &output) override{
-          if (pre_stream_read_hook != nullptr)
-            pre_stream_read_hook();
-
-          if constexpr (is_container<T>::value && !std::is_same<std::string, T>::value) {
-            bool OK = true;
-            do {
-              try {
-                std::string s;
-                std::getline(input, s, '\n');
-                std::istringstream iss(s);
-                sugar::m_IOStreamReader reader(input);
-                std::remove_cvref_t<T> tmp;
-                while (!iss.eof()) {
-                  auto x = reader.m_TryRead(tmp);
-                  if (x) {
-                    reader.discard_line();
-                    throw sugar::IOException(x);
-                  }
-                  this->value.emplace_back(tmp);
-                }
-              }
-              catch (std::exception &e) {
-                std::cout << "Invalid data\n";
-                OK = false;
-              }
-            } while (!OK);
-          } else {
-            bool OK = true;
-            do {
-              try {
-                sugar::m_IOStreamReader reader(input);
-                auto x = reader.m_TryRead(this->value);
-                if (x) {
-                  reader.discard_line();
-                  throw sugar::IOException(x);
-                }
-              }
-              catch (std::exception &e) {
-                std::cout << "Invalid data\n";
-                OK = false;
-              }
-            }
-            while (!OK);
-          }
-          if (post_stream_read_hook != nullptr)
-            post_stream_read_hook();
-        }
-
-
-    };
-
+	friend class parser_impl;
+};
 };

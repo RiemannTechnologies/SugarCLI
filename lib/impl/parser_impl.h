@@ -6,39 +6,29 @@
 #include "../interactive_item.h"
 #include <stdexcept>
 #include <iostream>
-#include <CLI/cli.hpp>
 
 namespace Sugar::CLI {
 
-    enum class parse_result {
-        MustBreak,
-        CanContinue
-    };
+class parser_impl {
+public:
+	std::string pname;
+	//We'll store all our available components into a so-called "keychain" for reference
+	configurable_component_t* main;
 
-    class parser_impl {
-    public:
-        std::string pname;
-        //We'll store all our available components into a so-called "keychain" for reference
-        configurable_component_t *main;
+	std::vector<std::string> raw_arguments;
+	ArgumentDatabase database;
 
+	/**
+	 * INTERNAL ONLY - creates a new parser
+	 * @param _cmp component tree to be parsed
+	 */
+	explicit parser_impl(configurable_component_t* _cmp)
+			:main(_cmp) { }
 
-        std::vector<std::string> raw_arguments;
-        ArgumentDatabase database;
+	void start_parse(int argc, const char** argv);
 
-        std::istream *m_input = &std::cin;
-        std::ostream *m_output = &std::cout;
+	void obtain_argument_data_recursive(configurable_component_t* component);
 
-        /**
-         * INTERNAL ONLY - creates a new parser
-         * @param _cmp component tree to be parsed
-         */
-        explicit parser_impl(configurable_component_t *_cmp) : main(_cmp){}
-
-        void start_parse(int argc, const char **argv);
-
-        void obtain_argument_data_recursive(configurable_component_t *component);
-
-
-    };
+};
 
 }
