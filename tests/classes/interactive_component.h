@@ -27,14 +27,11 @@ public:
 
 	interactive_component()
 			:configurable_component_t("test", "This is a test"),
-			 name("name", "Please input your name", Sugar::CLI::RequirementLevel::Required, "Name of the user"),
-			 age("age", "Age of the user", "Please input your age", std::nullopt),
-			 height("height", "Height of the user", "Please input your height", std::nullopt),
-			 is_married("is_married", "Whether the user is married or not", std::nullopt,
-					 RequirementLevel::Optional, false),
-			 favourite_letter("favourite_letter", "Favourite letter, idfk", std::nullopt,
-					 RequirementLevel::Optional,
-					 'H')
+			 name("name", "Please input your name", RequirementLevel::Required, "Name of the user"),
+			 age("age", "Please input your age", RequirementLevel::Required,"Age of the user"),
+			 height("height","Please input your height",RequirementLevel::Required, "Height of the user"),
+			 is_married("is_married", RequirementLevel::Optional, "Whether the user is married or not"),
+			 favourite_letter("favourite_letter",RequirementLevel::Optional, "Favourite letter, idfk")
 	{
 		register_item(name);
 		register_item(age);

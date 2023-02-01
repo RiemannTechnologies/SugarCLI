@@ -22,6 +22,16 @@ protected:
 	RequirementLevel level;
 	bool is_set = false;
 
+	void handle_sugar_input_parse(Input::raw_input& input)
+	{
+		if constexpr (!std::is_base_of_v<Input::UserIOStreamable, T>)//make this less sobful
+		{
+			Input::Parser::Parse(value, input[0]);
+		}
+		else {
+			Input::Parser::Parse(value, input);
+		}
+	}
 	void retrieve_positional_arguments(const ArgumentDatabase& args)
 	{
 		if (!pad.isSet()) return;
@@ -42,11 +52,12 @@ protected:
 			}
 			input.shrink_to_fit();
 		}
-		Input::Parser::Parse(value, input);
+		handle_sugar_input_parse(input);
 	}
 
 	virtual void handle_missing_argument()
 	{
+		if (level==RequirementLevel::Optional) return;
 		throw std::invalid_argument(name+" is required, but was not provided");
 	}
 public:
@@ -67,7 +78,7 @@ public:
 		if (_default!=std::nullopt) {
 			value = _default.value();
 		}
-		if constexpr (is_containter<T>()) {
+		if constexpr (std::is_base_of_v<Input::Containter, T>) {
 			if (_posArg.value()==1)
 				throw std::invalid_argument(name+" is a collection, but it only accepts 1 parameter");
 		}
@@ -92,21 +103,25 @@ public:
 		else
 			return;
 		Input::raw_input input = args.named_arguments.at(long_name);
-		input.emplace_back(args.named_arguments.at(short_name));
-		Input::Parser::Parse(value, input);
+
+		for (const auto& argValue : args.named_arguments.at(short_name))
+			input.emplace_back(argValue);
+		handle_sugar_input_parse(input);
 	}
 	[[nodiscard]] std::string as_string() const override
 	{
-		if constexpr (is_containter<T>()) {
+		if constexpr (std::is_base_of_v<Input::Containter, T>) {
 			std::stringstream ss;
 			for (const auto& v : value.data) {
 				ss << v << " ";
 			}
 			return ss.str();
 		}
-		else {
-			return std::to_string(value);
+		else if constexpr (std::is_same_v<T, std::string>) {
+			return value;
 		}
+		else
+			return std::to_string(value);
 	}
 	virtual T get_value() const
 	{

@@ -20,16 +20,14 @@ public:
 
 	bool is_called = false;
 
-	complex_component()
+	explicit complex_component()
 			:configurable_component_t("test", "This is a test"),
-			 name("name", "Name of the user", std::nullopt, riemann::RequirementLevel::Required),
-			 age("age", "Age of the user", std::nullopt, riemann::RequirementLevel::Required),
-			 height("height", "Height of the user", std::nullopt, riemann::RequirementLevel::Required),
-			 is_married("is_married", "Whether they are married or not", std::nullopt,
-					 riemann::RequirementLevel::Optional, false),
-			 favourite_letter("favourite_letter", "Their favourite letter idk", std::nullopt,
-					 riemann::RequirementLevel::Optional,
-					 'H'),
+			 name("name", RequirementLevel::Required, "Name of the user"),
+			 age("age", RequirementLevel::Required, "Age of the user"),
+			 height("height", RequirementLevel::Required, "Height of the user"),
+			 is_married("is_married", RequirementLevel::Optional, "Is the user married", false),
+			 favourite_letter("favourite_letter", RequirementLevel::Optional,
+					 "Favourite letter of the user", 'H'),
 			 help("help", "help", [this](auto context) {
 			   this->is_called = true;
 			 })

@@ -13,9 +13,9 @@ public:
 	configuration_item<double> height;
 	component_with_arrays()
 			:configurable_component_t("test", "This is a test"),
-			 names("name", "Names of users", std::nullopt, RequirementLevel::Required),
-			 age("age", "Age of the users", std::nullopt, RequirementLevel::Required),
-			 height("height", "Heights of users", std::nullopt, RequirementLevel::Required)
+			 names("name",RequirementLevel::Required, "Names of the users"),
+			 age("age",RequirementLevel::Required,"Age of the users"),
+			 height("height",RequirementLevel::Required,"Height of the users")
 	{
 		register_item(names);
 		register_item(age);

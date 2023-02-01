@@ -49,7 +49,7 @@ public:
 					*m_output << '\n';
 					continue;
 				}
-				Input::Parser::Parse(this->value, input);
+				this->handle_sugar_input_parse(input);
 				ok = true;
 			}
 			catch (std::invalid_argument&) {
