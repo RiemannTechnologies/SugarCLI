@@ -16,9 +16,8 @@ public:
 
 	complex_child_component1()
 			:configurable_component_t("first", "This is the first component"),
-			 height("height", "Height of user", std::nullopt, riemann::RequirementLevel::Required),
-			 is_married("is_married", "Marriage status", std::nullopt,
-					 riemann::RequirementLevel::Optional, false),
+			 height("height", RequirementLevel::Required, "Height of the user"),
+			 is_married("is_married", RequirementLevel::Optional, "Is the user married", false),
 			 thing1("thing1", "a description", [this]([[
 			 maybe_unused]] auto context) {
 			   this->is_called = true;
@@ -40,8 +39,8 @@ public:
 
 	complex_child_component2()
 			:configurable_component_t("second", "This is the second component"),
-			 name("name", "Name of the user", std::nullopt, riemann::RequirementLevel::Required),
-			 age("age", "Age of the user", std::nullopt, riemann::RequirementLevel::Required),
+			 name("name", RequirementLevel::Required, "Name of the user"),
+			 age("age", RequirementLevel::Required, "Age of the user"),
 			 thing2("thing2", "a description", [this]([[
 			 maybe_unused]] auto context) {
 			   this->is_called = true;
@@ -59,10 +58,10 @@ public:
 	configuration_item<std::string> action;//idfk
 	nested_component()
 			:configurable_component_t("test", "This is a test"),
-			 action("action", "", 1, riemann::RequirementLevel::Required)
+			 action("action", RequirementLevel::Required, "Action to perform", 1)
 	{
 		register_item(action);
-		child_component_switch = action.name;
+		child_component_switch = &action;
 		register_child_component(std::make_shared<complex_child_component1>());
 		register_child_component(std::make_shared<complex_child_component2>());
 	};

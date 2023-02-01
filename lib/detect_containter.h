@@ -6,7 +6,7 @@ namespace Sugar::CLI {
 template<typename T>
 constexpr bool is_containter(T)
 {
-	return std::is_base_of_v<Input::Containter, T>;
+	return;
 }
 
 }

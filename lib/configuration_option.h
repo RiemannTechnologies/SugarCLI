@@ -9,8 +9,7 @@ struct configuration_option : public item {
   std::function<void(const ArgumentDatabase& context)> callback;
 
   explicit configuration_option(std::string name, std::string description,
-		  std::function<void(const ArgumentDatabase& context)> callback,
-		  std::type_index type)
+		  std::function<void(const ArgumentDatabase& context)> callback)
 		  :item(name, description),
 		   callback(std::move(callback))
   {
