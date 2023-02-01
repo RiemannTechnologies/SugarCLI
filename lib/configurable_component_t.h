@@ -21,7 +21,7 @@ struct configurable_component_t {
   std::string help_text;//what should appear for the user in the help section
 
   std::vector<std::string> order;
-  std::unordered_map<std::string, item*> items;
+  std::map<std::string, item*> items;
   item* child_component_switch = nullptr;//what should determine which component is called
   void register_item(item& _item);
 

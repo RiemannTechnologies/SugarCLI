@@ -24,12 +24,14 @@ void parser_impl::start_parse(int _argc, const char** _argv)
 {
 
 	pname = _argv[0];
-	for (int i = 0; i<_argc; i++) {
+	for (int i = 1; i<_argc; i++) {
 		raw_arguments.emplace_back(_argv[i]);
 	}
 
+    if(_argc == 1)
+        return;//TODO: show help
 	std::string current_arg;
-	for (auto i = 1; i<raw_arguments.size(); i++) {
+	for (auto i = 0; i<raw_arguments.size(); i++) {
 		const auto& argument = raw_arguments[i];
 		if (argument.starts_with("-")) {
 			database.named_arguments.try_emplace(argument /* emplacing a default constructed object */);
@@ -54,10 +56,10 @@ void parser_impl::obtain_argument_data_recursive(configurable_component_t* compo
 
 		kItem.second->handle_opt(database);
 	}
-	if (component->children.empty() && component->child_component_switch!=nullptr)
+	if (component->children.empty() && component->child_component_switch != nullptr && !component->children.empty() &&
+        component->child_component_switch == nullptr)
 
-		if (!component->children.empty() && component->child_component_switch==nullptr)
-			throw std::runtime_error("Component {} has children but no child component switch"+component->id);
+        throw std::runtime_error("Component {} has children but no child component switch"+component->id);
 	if (component->children.empty())
 		return;
 

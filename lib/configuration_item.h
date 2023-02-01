@@ -100,14 +100,17 @@ public:
 			else
 				return;
 		}
-		if (!args.named_arguments.contains(long_name) && !args.named_arguments.contains(short_name))
+		if (args.named_arguments.contains(long_name)==false && args.named_arguments.contains(short_name) == false)
 			handle_missing_argument();
-		else
-			return;
-		Input::raw_input input = args.named_arguments.at(long_name);
 
-		for (const auto& argValue : args.named_arguments.at(short_name))
-			input.emplace_back(argValue);
+        Input::raw_input input;
+
+        if(args.named_arguments.contains(long_name))
+            input = args.named_arguments.at(long_name);
+
+        if(args.named_arguments.contains(short_name))
+		    for (const auto& argValue : args.named_arguments.at(short_name))
+			    input.emplace_back(argValue);
 		handle_sugar_input_parse(input);
 	}
 	[[nodiscard]] std::string as_string() const override
