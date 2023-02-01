@@ -100,7 +100,7 @@ public:
 			else
 				return;
 		}
-		if (!args.named_arguments.contains(long_name) || !args.named_arguments.contains(short_name))
+		if (!args.named_arguments.contains(long_name) && !args.named_arguments.contains(short_name))
 			handle_missing_argument();
 		else
 			return;
