@@ -5,7 +5,7 @@ TEST(nested_comp_test, FirstBranchBasicParse)
 	nested_component component;
 	const char* argv[] = {"./my_horn_is_very_orb", "first", "--height", "1.72", "--is_married", "true"};
 	//, "--height", "1.72", "--is_married", "true"}:
-	riemann::parser_impl parser(&component);
+	parser_impl parser(&component);
 	int argc = sizeof(argv)/sizeof(const char*);
 
 	parser.start_parse(argc, argv);
@@ -19,7 +19,7 @@ TEST(nested_comp_test, SecondBranchBasicParse)
 {
 	nested_component component;
 	const char* argv[] = {"./my_horn_is_very_orb", "second", "--name", "ThonkDifferent", "--age", "16"};
-	riemann::parser_impl parser(&component);
+	parser_impl parser(&component);
 	int argc = sizeof(argv)/sizeof(const char*);
 
 	parser.start_parse(argc, argv);

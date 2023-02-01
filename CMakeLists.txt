@@ -16,7 +16,9 @@ FetchContent_Declare(
         GIT_TAG release-1.12.1
 )
 # For Windows: Prevent overriding the parent project's compiler/linker settings
+if(WINDOWS)
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+endif()
 FetchContent_MakeAvailable(googletest)
 
 enable_testing()
@@ -26,10 +28,10 @@ file(GLOB_RECURSE HEADERS "lib/*.h")
 file(GLOB_RECURSE TEST_SOURCES "tests/*.cpp")
 add_library(SugarCLI SHARED ${SOURCES} ${HEADERS})
 
-add_executable(SugarCLITest ${TEST_SOURCES})
+add_executable(SugarCLITest ${SOURCES} ${TEST_SOURCES})
 target_compile_definitions(SugarCLITest PRIVATE GTEST_COLOR=yes)
 
-target_link_libraries(SugarCLI PRIVATE CLI11 SugarInput)
+target_link_libraries(SugarCLI PRIVATE SugarInput)
 target_include_directories(SugarCLI PRIVATE lib include/ include/SugarInput/lib/)
 
 

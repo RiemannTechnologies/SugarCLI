@@ -16,9 +16,9 @@ public:
 
 	positional_component()
 			:configurable_component_t("test", "This is a test"),
-			 name("name", "Name of the user", 1, riemann::RequirementLevel::Required),
-			 age("age", "Age of the user", 1, riemann::RequirementLevel::Required),
-			 intrests("things", "amogus", -1, riemann::RequirementLevel::Required)
+			 name("name", RequirementLevel::Required, "Name of the user"),
+			 age("age", RequirementLevel::Required, "Age of the user"),
+			 intrests("things", RequirementLevel::Required, "Interests",-1)
 	{
 		register_item(name);
 		register_item(age);

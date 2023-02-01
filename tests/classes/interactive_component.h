@@ -25,6 +25,8 @@ public:
 	configuration_item<bool> is_married;
 	configuration_item<char> favourite_letter;//idfk
 
+    std::istream* input;
+    std::ostream* output;
 	interactive_component()
 			:configurable_component_t("test", "This is a test"),
 			 name("name", "Please input your name", RequirementLevel::Required, "Name of the user"),
@@ -33,11 +35,19 @@ public:
 			 is_married("is_married", RequirementLevel::Optional, "Whether the user is married or not"),
 			 favourite_letter("favourite_letter",RequirementLevel::Optional, "Favourite letter, idfk")
 	{
+        name.m_input = input;
+        age.m_input = input;
+        height.m_input = input;
+
+        name.m_output = output;
+        age.m_output = output;
+        height.m_output = output;
+
+
 		register_item(name);
 		register_item(age);
 		register_item(height);
 		register_item(is_married);
 		register_item(favourite_letter);
-
 	};
 };

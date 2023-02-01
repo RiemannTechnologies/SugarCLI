@@ -11,12 +11,10 @@ class child_component : public configurable_component_t {
 public:
 	configuration_item<double> height;
 	configuration_item<bool> is_married;
-
 	child_component()
 			:configurable_component_t("first", "This is the first component"),
-			 height("height", "Height of the user", std::nullopt, riemann::RequirementLevel::Required),
-			 is_married("is_married", "Whether the user is married or not", std::nullopt,
-					 riemann::RequirementLevel::Optional, false)
+			 height("height", RequirementLevel::Required, "Height of the user"),
+			 is_married("is_married",RequirementLevel::Optional, "Marriage status", std::nullopt, false)
 	{
 		register_item(height);
 		register_item(is_married);
@@ -30,8 +28,8 @@ public:
 
 	child_component2()
 			:configurable_component_t("second", "This is the second component"),
-			 name("name", "Name of the user", std::nullopt, riemann::RequirementLevel::Required),
-			 age("age", "Age of the user", std::nullopt, riemann::RequirementLevel::Required)
+			 name("name", RequirementLevel::Required, "Name of the user"),
+			 age("age", RequirementLevel::Required,"Age of the user")
 	{
 		register_item(name);
 		register_item(age);
@@ -44,10 +42,10 @@ public:
 	configuration_item<std::string> action;//idfk
 	nested_component()
 			:configurable_component_t("test", "This is a test"),
-			 action("action", "", 1, riemann::RequirementLevel::Required)
+			 action("action", RequirementLevel::Required,"action",1)
 	{
 		register_item(action);
-		child_component_switch = action.name;
+		child_component_switch = &action;
 		register_child_component(std::make_shared<child_component>());
 		register_child_component(std::make_shared<child_component2>());
 	};

@@ -5,8 +5,8 @@
 #include <unordered_map>
 #include "positional_argument_description.h"
 #include "item.h"
-#include "detect_containter.h"
 #include <any>
+#include <sstream>
 #include <SugarInput/lib/Reader.h>
 #include <SugarInput/lib/Parser.h>
 #include <SugarInput/lib/Datatypes/Vector.h>
@@ -128,6 +128,5 @@ public:
 		return value;
 	}
 
-	virtual ~configuration_item() = default;
 };
 }

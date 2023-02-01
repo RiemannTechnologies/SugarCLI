@@ -9,7 +9,7 @@ public:
 TEST_F(positional_comp_test, BasicCmdParse)
 {
 	const char* argv[] = {"./my_horn_is_very_orb", "ThonkDifferent", "16", "Thing1", "Thing2"};
-	riemann::parser_impl parser(&component);
+	parser_impl parser(&component);
 	int argc = sizeof(argv)/sizeof(const char*);
 
 	parser.start_parse(argc, argv);

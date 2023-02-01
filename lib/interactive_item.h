@@ -10,15 +10,16 @@
 #include <SugarInput/lib/Parser.h>
 namespace Sugar::CLI {
 
+
+
 template<Input::IOStreamable T>
 struct interactive_item : public configuration_item<T> {
 
-private:
-	std::istream* m_input = &std::cin;
-	std::ostream* m_output = &std::cout;
-	bool has_optional_value = false;
-	std::string user_message;
 public:
+    bool has_optional_value = false;
+    std::string user_message;
+    std::istream* m_input = &std::cin;
+    std::ostream* m_output = &std::cout;
 	explicit interactive_item(std::string const& _name,
 			std::string const& _user_message,
 			RequirementLevel _level = RequirementLevel::Required,
@@ -59,6 +60,5 @@ public:
 		while (!ok);
 	}
 
-	friend class parser_impl;
 };
 };
