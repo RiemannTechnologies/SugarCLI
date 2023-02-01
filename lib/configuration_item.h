@@ -78,6 +78,8 @@ public:
 		if (_default!=std::nullopt) {
 			value = _default.value();
 		}
+        if(_posArg==std::nullopt)
+            return;
 		if constexpr (std::is_base_of_v<Input::Containter, T>) {
 			if (_posArg.value()==1)
 				throw std::invalid_argument(name+" is a collection, but it only accepts 1 parameter");
