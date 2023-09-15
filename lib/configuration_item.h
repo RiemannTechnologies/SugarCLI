@@ -26,6 +26,7 @@ protected:
 	{
 		if constexpr (!std::is_base_of_v<Input::UserIOStreamable, T>)//make this less sobful
 		{
+
 			Input::Parser::Parse(value, input[0]);
 		}
 		else {
@@ -55,10 +56,11 @@ protected:
 		handle_sugar_input_parse(input);
 	}
 
-	virtual void handle_missing_argument()
+	virtual void handle_missing_argument(ArgumentDatabase& args)
 	{
 		if (level==RequirementLevel::Optional) return;
-		throw std::invalid_argument(name+" is required, but was not provided");
+
+        args.errors.try_emplace(ErrorType::ArgumentNotFound, name+" is required, but was not provided");
 	}
 public:
 	/**
@@ -91,17 +93,20 @@ public:
 		}
 	};
 
-	void handle_opt(const ArgumentDatabase& args) override
+	void handle_opt(ArgumentDatabase& args) override
 	{
 		if (pad.isSet()) {
 			retrieve_positional_arguments(args);
 			if (!is_set)
-				handle_missing_argument();
+				handle_missing_argument(args);
 			else
 				return;
 		}
 		if (args.named_arguments.contains(long_name)==false && args.named_arguments.contains(short_name) == false)
-			handle_missing_argument();
+        {
+            handle_missing_argument(args);
+            return;
+        }
 
         Input::raw_input input;
 

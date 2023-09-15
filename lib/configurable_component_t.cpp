@@ -4,6 +4,7 @@ namespace Sugar::CLI {
 
 void configurable_component_t::register_item(item& _item)
 {
+
 	this->order.push_back(_item.name);
 	this->items.try_emplace(_item.name, &_item);
 }

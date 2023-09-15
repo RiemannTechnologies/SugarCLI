@@ -30,7 +30,7 @@ namespace Sugar::CLI {
       long_name = "--" + name.substr(i);
     }
 
-    virtual void handle_opt(const ArgumentDatabase &args) = 0;
+    virtual void handle_opt(ArgumentDatabase &args) = 0;
     virtual std::string as_string() const = 0;
    // virtual std::string generate_help() const = 0; TODO: implement this
   };

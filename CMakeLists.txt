@@ -26,7 +26,7 @@ enable_testing()
 file(GLOB_RECURSE SOURCES "lib/*.cpp")
 file(GLOB_RECURSE HEADERS "lib/*.h")
 file(GLOB_RECURSE TEST_SOURCES "tests/*.cpp")
-add_library(SugarCLI SHARED ${SOURCES} ${HEADERS})
+add_library(SugarCLI STATIC ${SOURCES} ${HEADERS})
 
 add_executable(SugarCLITest ${SOURCES} ${TEST_SOURCES})
 target_compile_definitions(SugarCLITest PRIVATE GTEST_COLOR=yes)

@@ -22,6 +22,7 @@ struct configurable_component_t {
 
   std::vector<std::string> order;
   std::map<std::string, item*> items;
+  std::map<std::string, item*> options;
   item* child_component_switch = nullptr;//what should determine which component is called
   void register_item(item& _item);
 
@@ -33,7 +34,7 @@ struct configurable_component_t {
   void register_child_component(std::shared_ptr<configurable_component_t> configurableComponent);
 
   virtual void run();
-
+  virtual ~configurable_component_t() = default;
 };
 
 }

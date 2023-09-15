@@ -1,5 +1,6 @@
 #include <iostream>
 #include "parser_impl.h"
+#include "configuration_option.h"
 
 #define CONTAINER_CHECK_AND_APPLY(T) if(item.isContainer)\
 od.add_options() \
@@ -39,7 +40,6 @@ void parser_impl::start_parse(int _argc, const char** _argv)
 		}
 		else if (!current_arg.empty()) {
 			database.named_arguments[current_arg].emplace_back(argument);
-			current_arg = "";
 		}
 		else {
 			database.positional_arguments.emplace_back(argument);
@@ -52,10 +52,22 @@ void parser_impl::start_parse(int _argc, const char** _argv)
 void parser_impl::obtain_argument_data_recursive(configurable_component_t* component)
 {
 
+    //handle configuration items AFTER configuration options
+
 	for (const auto& kItem : component->items) {
 
 		kItem.second->handle_opt(database);
 	}
+
+    if(database.shouldStop)
+    {
+        //TODO: Better testability for errors
+        for(const auto& error : database.errors)
+        {
+            std::cout<<error.second<<'\n';
+        }
+        return;
+    }
 	if (component->children.empty() && component->child_component_switch != nullptr && !component->children.empty() &&
         component->child_component_switch == nullptr)
 

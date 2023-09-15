@@ -37,7 +37,7 @@ public:
 			has_optional_value = true;
 		}
 	}
-	void handle_missing_argument() override
+	void handle_missing_argument([[maybe_unused]] ArgumentDatabase& args) override
 	{
 		bool ok = false;
 		do {

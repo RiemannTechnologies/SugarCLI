@@ -17,7 +17,7 @@ public:
 	complex_child_component1()
 			:configurable_component_t("first", "This is the first component"),
 			 height("height", RequirementLevel::Required, "Height of the user"),
-			 is_married("is_married", RequirementLevel::Optional, "Is the user married", false),
+			 is_married("is_married", RequirementLevel::Optional, "Is the user married", std::nullopt,false),
 			 thing1("thing1", "a description", [this]([[
 			 maybe_unused]] auto context) {
 			   this->is_called = true;
