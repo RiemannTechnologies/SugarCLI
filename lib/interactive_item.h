@@ -37,7 +37,11 @@ public:
 			has_optional_value = true;
 		}
 	}
-	void handle_missing_argument([[maybe_unused]] ArgumentDatabase& args) override
+    virtual void handle_invalid_args()
+    {
+        *m_output << "Invalid input, please try again" << std::endl;
+    }
+	virtual void handle_missing_argument([[maybe_unused]] ArgumentDatabase& args) override
 	{
 		bool ok = false;
 		do {
@@ -54,11 +58,11 @@ public:
 				ok = true;
 			}
 			catch (std::invalid_argument&) {
-				*m_output << "Invalid input, please try again" << std::endl;
+				handle_invalid_args();
 			}
 		}
 		while (!ok);
 	}
-
+    virtual ~interactive_item() = default;
 };
 };

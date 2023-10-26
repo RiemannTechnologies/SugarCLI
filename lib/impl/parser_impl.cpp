@@ -29,8 +29,6 @@ void parser_impl::start_parse(int _argc, const char** _argv)
 		raw_arguments.emplace_back(_argv[i]);
 	}
 
-    if(_argc == 1)
-        return;//TODO: show help
 	std::string current_arg;
 	for (auto i = 0; i<raw_arguments.size(); i++) {
 		const auto& argument = raw_arguments[i];

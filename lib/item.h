@@ -1,37 +1,26 @@
 #pragma once
 
 #include <string>
-#include <typeinfo>
-#include <typeindex>
-#include <any>
-#include "typedefs.h"
-
+#include "requirement.h"
+#include "cli_envinronment.h"
 namespace Sugar::CLI {
-  struct item {
-    std::string name;
-    std::string description;
-    std::string short_name;
-    std::string long_name;
-    /**
-     * Initialize a new item
-     *
-     * if name has a "--" prefix, it will be removed
-     * if name has a "-" prefix, it will be removed
-     */
-    explicit item(std::string _name, std::string description)
-        : name(std::move(_name)),
-          description(std::move(description))
-    {
-      int i = 0;
-      while (name[i] == '-' && i < name.size()) { //skip all the dashes
-        i++;
-      }
-      short_name = "-" + name.substr(i, 1);
-      long_name = "--" + name.substr(i);
-    }
+    template<typename T> requires Input::IOStreamable<T>
+    struct item {
+      T value;
+      std::string name;
+      std::string description;
+      requirement_t requirement;
+      virtual bool matcher (const cli_environment& env) = 0;
+      virtual std::vector<std::string_view> match_id() const = 0;
+      virtual void success () = 0;
+      virtual void fail () = 0;
+      virtual ~item() = default;
 
-    virtual void handle_opt(ArgumentDatabase &args) = 0;
-    virtual std::string as_string() const = 0;
-   // virtual std::string generate_help() const = 0; TODO: implement this
+      explicit item(const std::string& _name,
+                    const std::string& _description,
+                    const requirement_val_t& _requirement) :
+                    name(_name), description(_description), requirement(_requirement)
+                    {};
+
   };
 }

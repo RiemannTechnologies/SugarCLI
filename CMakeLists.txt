@@ -26,9 +26,13 @@ enable_testing()
 file(GLOB_RECURSE SOURCES "lib/*.cpp")
 file(GLOB_RECURSE HEADERS "lib/*.h")
 file(GLOB_RECURSE TEST_SOURCES "tests/*.cpp")
-add_library(SugarCLI STATIC ${SOURCES} ${HEADERS})
+add_library(SugarCLI STATIC ${SOURCES} ${HEADERS}
+        lib/requirement.cpp
+        lib/requirement.h
+)
 
-add_executable(SugarCLITest ${SOURCES} ${TEST_SOURCES})
+add_executable(SugarCLITest ${SOURCES} ${TEST_SOURCES}
+        )
 target_compile_definitions(SugarCLITest PRIVATE GTEST_COLOR=yes)
 
 target_link_libraries(SugarCLI PRIVATE SugarInput)
@@ -37,7 +41,7 @@ target_include_directories(SugarCLI PRIVATE lib include/ include/SugarInput/lib/
 
 target_include_directories(SugarCLITest PRIVATE lib)
 target_include_directories(SugarCLITest PRIVATE include/ include/SugarInput/lib/) #this is the worst thing I've ever done
-target_link_libraries(SugarCLITest PRIVATE SugarInput gtest_main)
+target_link_libraries(SugarCLITest PRIVATE SugarInput gtest_main gmock)
 include(GoogleTest)
 gtest_discover_tests(SugarCLITest)
 

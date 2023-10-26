@@ -1,5 +1,6 @@
 #include "classes/interactive_component.h"
 
+
 class interactive_component_test : public testing::Test {
 public:
 	interactive_component component;
@@ -27,8 +28,7 @@ TEST_F(interactive_component_test, CliInputTest)
 	std::istringstream in(input);
 	std::ostringstream out;
 
-	component.input = &in;
-	component.output = &out;
+    component.set_io_for_components(&in,&out);
 
 	parser.start_parse(argc, argv);
 	ASSERT_EQ(out.str(),
@@ -39,21 +39,20 @@ TEST_F(interactive_component_test, CliInputTest)
 TEST_F(interactive_component_test, CliInputErrorHandle)
 {
 	const char* argv[] = {"./my_horn_is_very_orb"};
-	parser_impl parser(&component);
+
+    interactive_component mock_component;
+    parser_impl parser(&mock_component);
 	int argc = sizeof(argv)/sizeof(const char*);
 	std::string input = place_on_new_lines("ThonkDifferent Amogus 17 1.73");
 
 	std::istringstream in(input);
 	std::ostringstream out;
 
-    component.input = &in;
-    component.output = &out;
+    mock_component.set_io_for_components(&in,&out);
 
 	parser.start_parse(argc, argv);
-	ASSERT_EQ(out.str(),
-			"Please input your name: Please input your age: \n"
-			"Invalid data\n"
-			"Please input your age: Please input your height: ");
+    EXPECT_CALL(mock_component.age,handle_invalid_args())
+                                    .Times(1);
 }
 //TODO: Better user-facing error messages
 /*TEST_F(component_api_test, aeudfh) {
