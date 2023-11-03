@@ -23,16 +23,13 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-file(GLOB_RECURSE SOURCES "lib/*.cpp")
-file(GLOB_RECURSE HEADERS "lib/*.h")
-file(GLOB_RECURSE TEST_SOURCES "tests/*.cpp")
-add_library(SugarCLI STATIC ${SOURCES} ${HEADERS}
-        lib/requirement.cpp
-        lib/requirement.h
-)
 
-add_executable(SugarCLITest ${SOURCES} ${TEST_SOURCES}
-        )
+add_library(SugarCLI STATIC lib/internal/internal_parser.cpp
+        lib/internal/internal_vector_iterator.cpp
+        lib/internal/internal_vector_iterator.h)
+
+add_executable(SugarCLITest tests/variable_map_creation.cpp
+        tests/vector_state.cpp)
 target_compile_definitions(SugarCLITest PRIVATE GTEST_COLOR=yes)
 
 target_link_libraries(SugarCLI PRIVATE SugarInput)
