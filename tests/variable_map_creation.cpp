@@ -1,10 +1,7 @@
 #include <gtest/gtest.h>
-#include <map>
-#include <vector>
-#include <string>
+#include "internal/type_definitions.h"
 #include <internal/internal_parser.h>
-using vmap = std::map<std::string,std::vector<std::string>>;
-using argv_t = std::vector<std::string>;
+
 
 namespace Sugar::CLI {
     TEST(variable_map_creation, from_name_and_age) {

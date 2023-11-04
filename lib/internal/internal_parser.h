@@ -3,9 +3,9 @@
 #include <string>
 #include <vector>
 #include "internal_vector_iterator.h"
+#include "type_definitions.h"
 
 namespace Sugar::CLI {
-    using vmap = std::map<std::string, std::vector<std::string>,std::less<>>;
     using argv_t = std::vector<std::string>;
     struct internal_parser {
         static void handle_argument_header(
