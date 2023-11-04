@@ -44,7 +44,7 @@ namespace Sugar::CLI {
         procedure.input_stream = &fake_input;
         procedure.output_stream = &test_output;
 
-        error_handler_result<int> result= {69,false};;
+        error_handler_result<int> result= {69,false};
         ASSERT_NO_THROW(result = procedure.error());
         ASSERT_TRUE(result.shouldTryAgain);
         ASSERT_EQ(result.newValue, std::nullopt);
@@ -73,7 +73,7 @@ namespace Sugar::CLI {
         procedure.input_stream = &fake_input;
         procedure.output_stream = &test_output;
 
-        error_handler_result<std::string> result = {"ERROR",true};;
+        error_handler_result<std::string> result = {"ERROR",true};
         ASSERT_NO_THROW(result = procedure.error());
         ASSERT_FALSE(result.shouldTryAgain);
         ASSERT_NE(result.newValue, std::nullopt);
