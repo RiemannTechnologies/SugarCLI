@@ -29,7 +29,8 @@ add_library(SugarCLI STATIC lib/internal/internal_parser.cpp
         lib/internal/internal_vector_iterator.h)
 
 add_executable(SugarCLITest tests/variable_map_creation.cpp
-        tests/vector_state.cpp)
+        tests/vector_state.cpp
+        tests/item_parsing_test.cpp)
 target_compile_definitions(SugarCLITest PRIVATE GTEST_COLOR=yes)
 
 target_link_libraries(SugarCLI PRIVATE SugarInput)
