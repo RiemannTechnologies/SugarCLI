@@ -1,19 +1,4 @@
-[submodule "include/program_options"]
-	path = include/program_options
-	url = https://github.com/boostorg/program_options
-[submodule "include/spdlog"]
-	path = include/spdlog
-	url = https://github.com/gabime/spdlog
-[submodule "include/boost-cmake"]
-	path = include/boost-cmake
-	url = https://github.com/RiemannTechnologies/boost-cmake
-[submodule "include/cxxopts"]
-	path = include/cxxopts
-	url = https://github.com/jarro2783/cxxopts.git
-	branch = c74846a
 [submodule "include/SugarInput"]
 	path = include/SugarInput
 	url = https://github.com/RiemannTechnologies/SugarInput.git
-[submodule "include/CLI11"]
-	path = include/CLI11
-	url = https://github.com/CLIUtils/CLI11.git
+
