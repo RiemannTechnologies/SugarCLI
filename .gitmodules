@@ -1,4 +1,3 @@
 [submodule "include/SugarInput"]
 	path = include/SugarInput
 	url = https://github.com/RiemannTechnologies/SugarInput.git
-
