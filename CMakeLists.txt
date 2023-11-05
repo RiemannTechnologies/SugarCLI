@@ -31,7 +31,11 @@ add_library(SugarCLI STATIC lib/internal/internal_parser.cpp
         lib/internal/default_parsing_strategy.h
         lib/internal/handling_procedure.h
         lib/internal/interactive_handling_procedure.h
-        lib/item.h)
+        lib/item.h
+        lib/component.h
+        lib/runner.h
+        lib/internal/string_convertor.h
+        lib/configuration_item.h)
 
 add_executable(SugarCLITest tests/variable_map_creation.cpp
         tests/vector_state.cpp

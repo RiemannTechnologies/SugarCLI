@@ -5,8 +5,14 @@
 #include "internal/parsing_strategy.h"
 namespace Sugar::CLI {
 
+
+    struct abstract_item{
+
+        virtual ~abstract_item() = default;
+        virtual void parse(const vmap& map) = 0;
+    };
     template <Input::IOStreamable T>
-    struct item{
+    struct item : public abstract_item{
         T value;
         std::string arg_name;
         handling_procedure<T>* errorHandler;
