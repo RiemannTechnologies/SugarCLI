@@ -1,37 +1,43 @@
 #pragma once
-
-#include <string>
-#include <typeinfo>
-#include <typeindex>
-#include <any>
-#include "typedefs.h"
-
+#include <IOStreamable.h>
+#include <memory>
+#include "internal/handling_procedure.h"
+#include "internal/parsing_strategy.h"
 namespace Sugar::CLI {
-  struct item {
-    std::string name;
-    std::string description;
-    std::string short_name;
-    std::string long_name;
-    /**
-     * Initialize a new item
-     *
-     * if name has a "--" prefix, it will be removed
-     * if name has a "-" prefix, it will be removed
-     */
-    explicit item(std::string _name, std::string description)
-        : name(std::move(_name)),
-          description(std::move(description))
-    {
-      int i = 0;
-      while (name[i] == '-' && i < name.size()) { //skip all the dashes
-        i++;
-      }
-      short_name = "-" + name.substr(i, 1);
-      long_name = "--" + name.substr(i);
-    }
 
-    virtual void handle_opt(const ArgumentDatabase &args) = 0;
-    virtual std::string as_string() const = 0;
-   // virtual std::string generate_help() const = 0; TODO: implement this
-  };
+
+    struct abstract_item{
+
+        virtual ~abstract_item() = default;
+        virtual void parse(const vmap& map) = 0;
+    };
+    template <Input::IOStreamable T>
+    struct item : public abstract_item{
+        T value;
+        std::string arg_name;
+        handling_procedure<T>* errorHandler;
+        parsing_strategy<T>* parsingStrategy;
+
+        virtual ~item() = default;
+        void parse(const vmap& map)
+        {
+            auto result = parsingStrategy->parse(arg_name, map);
+
+            if(result!=std::nullopt)
+            {
+                value = result.value();
+                return;
+            }
+
+            error_handler_result<T> eHandlerRes = errorHandler->error();
+            while(eHandlerRes.shouldTryAgain)
+            {
+                eHandlerRes = errorHandler->error();
+            }
+
+            if(eHandlerRes.newValue == std::nullopt) return;
+            value = eHandlerRes.newValue.value();
+        }
+        explicit item(const std::string& name): arg_name("--"+name){}
+    };
 }
